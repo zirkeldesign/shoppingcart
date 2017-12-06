@@ -338,13 +338,13 @@ class Cart
     /**
      * Get the total price of the items in the cart as formatted string.
      *
+     * @param bool   $int
      * @param int    $decimals
      * @param string $decimalPoint
      * @param string $thousandSeperator
-     *
-     * @return string
+     * @return string or int
      */
-    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function total($int = null, $decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
         return $this->numberFormat($this->totalFloat(), $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -367,7 +367,6 @@ class Cart
      * @param int    $decimals
      * @param string $decimalPoint
      * @param string $thousandSeperator
-     *
      * @return string
      */
     public function tax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
