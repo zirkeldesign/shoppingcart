@@ -440,6 +440,26 @@ class Cart
 
     /**
      * Get the price of the items in the cart as formatted string.
+     * Get the total tax of the items in the cart.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     * @return float
+     */
+    public function shipping($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $content = $this->getContent();
+
+        $shipping = $content->reduce(function ($shipping, CartItem $cartItem) {
+            return $shipping + ($cartItem->qty * $cartItem->shipping);
+        }, 0);
+
+        return $this->numberFormat($shipping, $decimals, $decimalPoint, $thousandSeperator);
+    }
+
+    /**
+     * Get the subtotal (total - tax) of the items in the cart.
      *
      * @param int    $decimals
      * @param string $decimalPoint

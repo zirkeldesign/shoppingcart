@@ -401,12 +401,17 @@ class CartItem implements Arrayable, Jsonable
                 return round($this->weight * $this->qty, $decimals);
         }
 
-        $class = new ReflectionClass(config('cart.calculator', DefaultCalculator::class));
-        if (!$class->implementsInterface(Calculator::class)) {
-            throw new InvalidCalculatorException('The configured Calculator seems to be invalid. Calculators have to implement the Calculator Contract.');
+        if($attribute === 'tax') {
+            return $this->price * ($this->taxRate / 100);
         }
 
-        return call_user_func($class->getName().'::getAttribute', $attribute, $this);
+        if($attribute === 'shipping') {
+            return $this->price * 0.05;
+        }
+        
+        if($attribute === 'taxTotal') {
+            return $this->tax * $this->qty;
+        }
     }
 
     /**
