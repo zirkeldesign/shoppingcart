@@ -279,7 +279,7 @@ class Cart
     {
         $content = $this->getContent();
 
-        $shippingRate = (in_array($session->get('cart_country'), Config('cart.shipping.standard'))) ?
+        $shippingRate = (in_array($this->session->get('cart_country'), Config('cart.shipping.standard'))) ?
                         $cartItem->shipping : $cartItem->shippingInt;
 
         $shipping = $content->reduce(function ($shipping, CartItem $cartItem) {
