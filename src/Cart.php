@@ -279,8 +279,11 @@ class Cart
     {
         $content = $this->getContent();
 
+        $shippingRate = (in_array($session->get('cart_country'), Config('cart.shipping.standard'))) ?
+                        $cartItem->shipping : $cartItem->shippingInt;
+
         $shipping = $content->reduce(function ($shipping, CartItem $cartItem) {
-            return $shipping + ($cartItem->qty * $cartItem->shipping);
+            return $shipping + ($cartItem->qty * $sippingRate);
         }, 0);
 
         return $this->numberFormat($shipping, $decimals, $decimalPoint, $thousandSeperator);
