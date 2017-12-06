@@ -76,4 +76,10 @@ return [
 
     ],
 
+    'shipping' => [
+
+        'standard' => [ 232 , 105 ]
+
+    ]
+
 ];
