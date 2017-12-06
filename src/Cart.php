@@ -229,18 +229,21 @@ class Cart
     /**
      * Get the total price of the items in the cart.
      *
+     * @param bool   $int
      * @param int    $decimals
      * @param string $decimalPoint
      * @param string $thousandSeperator
-     * @return string
+     * @return string or int
      */
-    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function total($int = null, $decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
         $content = $this->getContent();
 
         $total = $content->reduce(function ($total, CartItem $cartItem) {
             return $total + ($cartItem->qty * $cartItem->priceTax);
         }, 0);
+
+        if($int) return $total;
 
         return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
     }
