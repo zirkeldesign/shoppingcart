@@ -197,6 +197,8 @@ class Cart
      */
     public function destroy()
     {
+        $this->session->remove('coupon');
+        $this->session->remove('cart_country');
         $this->session->remove($this->instance);
     }
 
@@ -235,15 +237,18 @@ class Cart
      * @param string $thousandSeperator
      * @return string or int
      */
-    public function total($int = null, $decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
         $content = $this->getContent();
 
         $total = $content->reduce(function ($total, CartItem $cartItem) {
-            return $total + ($cartItem->qty * $cartItem->priceTax);
+            
+            return $total + ($cartItem->price);
         }, 0);
 
-        if($int) return $total;
+        $total = $total - $this->discounts();
+
+        $total = $total + $this->shipping();
 
         return $this->numberFormat($total, $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -275,15 +280,56 @@ class Cart
      * @param string $thousandSeperator
      * @return float
      */
-    public function shipping($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function discounts($decimals = null, $decimalPoint = null, $thousandSeperator = null)
     {
+
         $content = $this->getContent();
 
-        $shipping = $content->reduce(function ($shipping, CartItem $cartItem) {
-            $shippingRate = (in_array($this->session->get('cart_country'), Config('cart.shipping.standard'))) ?
-            $cartItem->shipping : $cartItem->shippingInt;
-            return $shipping + ($cartItem->qty * $sippingRate);
-        }, 0);
+        $subtotal = $content->reduce(function ($subtotal, CartItem $cartItem) {
+            return $subtotal + ($cartItem->qty * $cartItem->price);
+        }, 0);;
+
+        if($this->session->get('coupon'))
+        {
+
+            $coupon = $this->session->get('coupon');
+
+            $discounts = ($coupon['is_percent']) ? $subtotal * $coupon['value'] / 100 : $coupon['value']; 
+                    
+            return $this->numberFormat($discounts, $decimals, $decimalPoint, $thousandSeperator);
+
+        }
+        else 
+        {
+            return 0;
+        }
+
+        
+    }
+
+    /**
+     * Get the total tax of the items in the cart.
+     *
+     * @param int    $decimals
+     * @param string $decimalPoint
+     * @param string $thousandSeperator
+     * @return float
+     */
+    public function shipping($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        
+        $shipping = 0;
+
+        if($this->session->get('coupon')['is_ship'] !== true)
+        {
+            $content = $this->getContent();
+
+            $shipping = $content->reduce(function ($shipping, CartItem $cartItem) {
+                $shippingRate = (in_array($this->session->get('cart_country'), Config('cart.shipping.standard'))) ?
+                $cartItem->shipping : $cartItem->shippingInt;
+                return $shipping + ($cartItem->qty * $shippingRate);
+            }, 0);            
+        }
 
         return $this->numberFormat($shipping, $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -303,6 +349,8 @@ class Cart
         $subTotal = $content->reduce(function ($subTotal, CartItem $cartItem) {
             return $subTotal + ($cartItem->qty * $cartItem->price);
         }, 0);
+
+        $subTotal = $subTotal - $this->discounts(); 
 
         return $this->numberFormat($subTotal, $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -564,7 +612,7 @@ class Cart
             $decimalPoint = is_null(config('cart.format.decimal_point')) ? '.' : config('cart.format.decimal_point');
         }
         if(is_null($thousandSeperator)){
-            $thousandSeperator = is_null(config('cart.format.thousand_seperator')) ? ',' : config('cart.format.thousand_seperator');
+            $thousandSeperator = config('cart.format.thousand_seperator');
         }
 
         return number_format($value, $decimals, $decimalPoint, $thousandSeperator);
