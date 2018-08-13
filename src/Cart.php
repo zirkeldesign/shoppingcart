@@ -344,9 +344,10 @@ class Cart
      * @param int    $decimals
      * @param string $decimalPoint
      * @param string $thousandSeperator
-     * @return string or int
+     * @param bool $raw
+     * @return string or float
      */
-    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null, $raw = false)
     {
         return $this->numberFormat($this->totalFloat(), $decimals, $decimalPoint, $thousandSeperator);
     }
@@ -447,9 +448,10 @@ class Cart
      * @param int    $decimals
      * @param string $decimalPoint
      * @param string $thousandSeperator
-     * @return float
+     * @param bool $raw
+     * @return float|int
      */
-    public function discounts($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function discounts($decimals = null, $decimalPoint = null, $thousandSeperator = null, $raw = false)
     {
 
         $content = $this->getContent();
@@ -458,18 +460,11 @@ class Cart
             return $subtotal + ($cartItem->qty * $cartItem->price);
         }, 0);;
 
-        if($this->session->get('coupon'))
-        {
-
+        if($this->session->get('coupon')) {
             $coupon = $this->session->get('coupon');
-
             $discounts = ($coupon['is_percent']) ? $subtotal * $coupon['value'] / 100 : $coupon['value']; 
-                    
-            return $this->numberFormat($discounts, $decimals, $decimalPoint, $thousandSeperator);
-
-        }
-        else 
-        {
+            return $this->numberFormat($discounts, $decimals, $decimalPoint, $thousandSeperator, $raw);
+        } else {
             return 0;
         }
 
@@ -482,17 +477,16 @@ class Cart
      * @param int    $decimals
      * @param string $decimalPoint
      * @param string $thousandSeperator
-     * @return float
+     * @param bool $raw
+     * @return int|float
      */
-    public function shipping($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function shipping($decimals = null, $decimalPoint = null, $thousandSeperator = null, $raw = false)
     {
         
         $shipping = 0;
 
-        if($this->session->get('coupon')['is_ship'] !== true)
-        {
+        if($this->session->get('coupon')['is_ship'] !== true) {
             $content = $this->getContent();
-
             $shipping = $content->reduce(function ($shipping, CartItem $cartItem) {
                 $shippingRate = (in_array($this->session->get('cart_country'), Config('cart.shipping.standard'))) ?
                 $cartItem->shipping : $cartItem->shippingInt;
@@ -500,7 +494,7 @@ class Cart
             }, 0);            
         }
 
-        return $this->numberFormat($shipping, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat($shipping, $decimals, $decimalPoint, $thousandSeperator, $raw);
     }
 
     /**
@@ -945,13 +939,16 @@ class Cart
      * @param $decimals
      * @param $decimalPoint
      * @param $thousandSeperator
-     *
+     * @param bool $raw
      * @return string
      */
-    private function numberFormat($value, $decimals, $decimalPoint, $thousandSeperator)
+    private function numberFormat($value, $decimals, $decimalPoint, $thousandSeperator, $raw = false)
     {
-        if (is_null($decimals)) {
-            $decimals = config('cart.format.decimals', 2);
+        if ($raw) {
+            return $value;
+        }
+        if(is_null($decimals)){
+            $decimals = is_null(config('cart.format.decimals')) ? 2 : config('cart.format.decimals');
         }
 
         if (is_null($decimalPoint)) {
