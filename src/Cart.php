@@ -490,7 +490,11 @@ class Cart
             $shipping = $content->reduce(function ($shipping, CartItem $cartItem) {
                 $shippingRate = (in_array($this->session->get('cart_country'), Config('cart.shipping.standard'))) ?
                 $cartItem->shipping : $cartItem->shippingInt;
-                return $shipping + ($cartItem->qty * $shippingRate);
+                $model = $cartItem->model->ArtworkTitle;
+                if (strpos($model, 'VOUCHER') === false) {
+                    return $shipping + ($cartItem->qty * $shippingRate);
+                }
+                return $shipping;
             }, 0);            
         }
 
