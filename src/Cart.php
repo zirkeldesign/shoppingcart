@@ -566,6 +566,17 @@ class Cart
     {
         return $this->numberFormat($this->weightFloat(), $decimals, $decimalPoint, $thousandSeperator);
     }
+        
+    public function subtotalNoDiscounts($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    {
+        $content = $this->getContent();
+
+        $subTotal = $content->reduce(function ($subTotal, CartItem $cartItem) {
+            return $subTotal + ($cartItem->qty * $cartItem->price);
+        }, 0);
+
+        return $this->numberFormat($subTotal, $decimals, $decimalPoint, $thousandSeperator);
+    }
 
     /**
      * Search the cart content for a cart item matching the given search closure.
