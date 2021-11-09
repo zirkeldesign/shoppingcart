@@ -2,14 +2,14 @@
 
 namespace Gloudemans\Shoppingcart;
 
-use Gloudemans\Shoppingcart\Calculation\DefaultCalculator;
+use ReflectionClass;
+use Illuminate\Support\Arr;
+use Illuminate\Contracts\Support\Jsonable;
+use Illuminate\Contracts\Support\Arrayable;
 use Gloudemans\Shoppingcart\Contracts\Buyable;
 use Gloudemans\Shoppingcart\Contracts\Calculator;
+use Gloudemans\Shoppingcart\Calculation\DefaultCalculator;
 use Gloudemans\Shoppingcart\Exceptions\InvalidCalculatorException;
-use Illuminate\Contracts\Support\Arrayable;
-use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Arr;
-use ReflectionClass;
 
 /**
  * @property-read mixed discount
@@ -25,6 +25,8 @@ use ReflectionClass;
  */
 class CartItem implements Arrayable, Jsonable
 {
+    use FormatsNumbers;
+
     /**
      * The rowID of the cart item.
      *
@@ -70,7 +72,7 @@ class CartItem implements Arrayable, Jsonable
     /**
      * The options for this cart item.
      *
-     * @var array
+     * @var CartItemOptions
      */
     public $options;
 
@@ -109,13 +111,22 @@ class CartItem implements Arrayable, Jsonable
         if (empty($id)) {
             throw new \InvalidArgumentException('Please supply a valid identifier.');
         }
+
         if (empty($name)) {
             throw new \InvalidArgumentException('Please supply a valid name.');
         }
-        if (strlen($price) < 0 || !is_numeric($price)) {
+
+        if (
+            strlen($price) < 0
+            || !is_numeric($price)
+        ) {
             throw new \InvalidArgumentException('Please supply a valid price.');
         }
-        if (strlen($weight) < 0 || !is_numeric($weight)) {
+
+        if (
+            strlen($weight) < 0
+            || !is_numeric($weight)
+        ) {
             throw new \InvalidArgumentException('Please supply a valid weight.');
         }
 
@@ -132,27 +143,37 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function weight($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function weight($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->weight, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->weight,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
-     * Returns the formatted price without TAX.
+     * Returns the formatted price without tax.
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function price($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function price($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->price, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->price,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -160,27 +181,37 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function priceTarget($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function priceTarget($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->priceTarget, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->priceTarget,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
-     * Returns the formatted price with TAX.
+     * Returns the formatted price with tax.
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function priceTax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function priceTax($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->priceTax, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->priceTax,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -189,28 +220,38 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function subtotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function subtotal($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->subtotal, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->subtotal,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
      * Returns the formatted total.
-     * Total is price for whole CartItem with TAX.
+     * Total is price for whole CartItem with tax.
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function total($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function total($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->total, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->total,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -218,13 +259,18 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function tax($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function tax($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->tax, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->tax,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -232,13 +278,18 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function taxTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function taxTotal($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->taxTotal, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->taxTotal,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -246,13 +297,18 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function discount($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function discount($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->discount, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->discount,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -260,13 +316,18 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function discountTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function discountTotal($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->discountTotal, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->discountTotal,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -274,13 +335,18 @@ class CartItem implements Arrayable, Jsonable
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      *
      * @return string
      */
-    public function priceTotal($decimals = null, $decimalPoint = null, $thousandSeperator = null)
+    public function priceTotal($decimals = null, $decimalPoint = null, $thousandSeparator = null)
     {
-        return $this->numberFormat($this->priceTotal, $decimals, $decimalPoint, $thousandSeperator);
+        return $this->numberFormat(
+            $this->priceTotal,
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
     }
 
     /**
@@ -290,7 +356,10 @@ class CartItem implements Arrayable, Jsonable
      */
     public function setQuantity($qty)
     {
-        if (empty($qty) || !is_numeric($qty)) {
+        if (
+            empty($qty)
+            || !is_numeric($qty)
+        ) {
             throw new \InvalidArgumentException('Please supply a valid quantity.');
         }
 
@@ -325,7 +394,9 @@ class CartItem implements Arrayable, Jsonable
         $this->name = Arr::get($attributes, 'name', $this->name);
         $this->price = Arr::get($attributes, 'price', $this->price);
         $this->weight = Arr::get($attributes, 'weight', $this->weight);
-        $this->options = new CartItemOptions(Arr::get($attributes, 'options', $this->options));
+        $this->options = new CartItemOptions(
+            Arr::get($attributes, 'options', $this->options)
+        );
 
         $this->rowId = $this->generateRowId($this->id, $this->options->all());
     }
@@ -381,15 +452,17 @@ class CartItem implements Arrayable, Jsonable
      */
     public function __get($attribute)
     {
-        if (property_exists($this, $attribute)) {
+        if (\property_exists($this, $attribute)) {
             return $this->{$attribute};
         }
+
         $decimals = config('cart.format.decimals', 2);
 
         switch ($attribute) {
             case 'model':
                 if (isset($this->associatedModel)) {
-                    return with(new $this->associatedModel())->find($this->id);
+                    return with(new $this->associatedModel())
+                        ->find($this->id);
                 }
                 // no break
             case 'modelFQCN':
@@ -399,23 +472,31 @@ class CartItem implements Arrayable, Jsonable
                 // no break
             case 'weightTotal':
                 return round($this->weight * $this->qty, $decimals);
+            case 'shipping':
+                return $this->price * 0.05;
+            case 'shippingInt':
+                return $this->price * 0.1;
+            default:
+                if (isset($this->associatedModel)) {
+                    $model = with(new $this->associatedModel())
+                        ->find($this->id);
+                    if ($model
+                        && \property_exists($model, $attribute)
+                    ) {
+                        return $model->{$attribute};
+                    }
+                };
         }
 
-        if($attribute === 'tax') {
-            return $this->price * ($this->taxRate / 100);
+        $class = new ReflectionClass(config('cart.calculator', DefaultCalculator::class));
+
+        if (!$class->implementsInterface(Calculator::class)) {
+            throw new InvalidCalculatorException(
+                'The configured Calculator seems to be invalid. Calculators have to implement the Calculator contract.'
+            );
         }
 
-        if($attribute === 'shipping') {
-            return $this->price * 0.05;
-        }
-
-        if($attribute === 'shippingInt') {
-            return $this->price * 0.1;
-        }
-        
-        if($attribute === 'taxTotal') {
-            return $this->tax * $this->qty;
-        }
+        return call_user_func($class->getName() . '::getAttribute', $attribute, $this);
     }
 
     /**
@@ -428,7 +509,13 @@ class CartItem implements Arrayable, Jsonable
      */
     public static function fromBuyable(Buyable $item, array $options = [])
     {
-        return new self($item->getBuyableIdentifier($options), $item->getBuyableDescription($options), $item->getBuyablePrice($options), $item->getBuyableWeight($options), $options);
+        return new self(
+            $item->getBuyableIdentifier($options),
+            $item->getBuyableDescription($options),
+            $item->getBuyablePrice($options),
+            $item->getBuyableWeight($options),
+            $options
+        );
     }
 
     /**
@@ -438,11 +525,15 @@ class CartItem implements Arrayable, Jsonable
      *
      * @return \Gloudemans\Shoppingcart\CartItem
      */
-    public static function fromArray(array $attributes)
+    public static function fromArray(array $attributes): CartItem
     {
-        $options = Arr::get($attributes, 'options', []);
-
-        return new self($attributes['id'], $attributes['name'], $attributes['price'], $attributes['weight'], $options);
+        return new self(
+            $attributes['id'],
+            $attributes['name'],
+            $attributes['price'],
+            $attributes['weight'],
+            Arr::get($attributes, 'options', [])
+        );
     }
 
     /**
@@ -455,9 +546,9 @@ class CartItem implements Arrayable, Jsonable
      *
      * @return \Gloudemans\Shoppingcart\CartItem
      */
-    public static function fromAttributes($id, $name, $price, $weight, array $options = [])
+    public static function fromAttributes($id, $name, $price, $weight, array $options = []): CartItem
     {
-        return new self($id, $name, $price, $weight, $options);
+        return new self(...func_get_args());
     }
 
     /**
@@ -468,11 +559,11 @@ class CartItem implements Arrayable, Jsonable
      *
      * @return string
      */
-    protected function generateRowId($id, array $options)
+    protected function generateRowId($id, array $options): string
     {
         ksort($options);
 
-        return md5($id.serialize($options));
+        return md5($id . serialize($options));
     }
 
     /**
@@ -480,7 +571,7 @@ class CartItem implements Arrayable, Jsonable
      *
      * @return array
      */
-    public function toArray()
+    public function toArray(): array
     {
         return [
             'rowId'    => $this->rowId,
@@ -503,36 +594,9 @@ class CartItem implements Arrayable, Jsonable
      *
      * @return string
      */
-    public function toJson($options = 0)
+    public function toJson($options = 0): string|false
     {
         return json_encode($this->toArray(), $options);
-    }
-
-    /**
-     * Get the formatted number.
-     *
-     * @param float  $value
-     * @param int    $decimals
-     * @param string $decimalPoint
-     * @param string $thousandSeperator
-     *
-     * @return string
-     */
-    private function numberFormat($value, $decimals, $decimalPoint, $thousandSeperator)
-    {
-        if (is_null($decimals)) {
-            $decimals = config('cart.format.decimals', 2);
-        }
-
-        if (is_null($decimalPoint)) {
-            $decimalPoint = config('cart.format.decimal_point', '.');
-        }
-
-        if (is_null($thousandSeperator)) {
-            $thousandSeperator = config('cart.format.thousand_separator', ',');
-        }
-
-        return number_format($value, $decimals, $decimalPoint, $thousandSeperator);
     }
 
     /**
@@ -541,7 +605,7 @@ class CartItem implements Arrayable, Jsonable
      *
      * @return float
      */
-    public function getDiscountRate()
+    public function getDiscountRate(): float
     {
         return $this->discountRate;
     }

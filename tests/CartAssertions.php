@@ -17,7 +17,11 @@ trait CartAssertions
     {
         $actual = $cart->count();
 
-        PHPUnit::assertEquals($items, $cart->count(), "Expected the cart to contain {$items} items, but got {$actual}.");
+        PHPUnit::assertEquals(
+            $items,
+            $cart->count(),
+            "Expected the cart to contain {$items} items, but got {$actual}."
+        );
     }
 
     /**
@@ -30,6 +34,10 @@ trait CartAssertions
     {
         $actual = $cart->content()->count();
 
-        PHPUnit::assertCount($rows, $cart->content(), "Expected the cart to contain {$rows} rows, but got {$actual}.");
+        PHPUnit::assertCount(
+            $rows,
+            $cart->content(),
+            "Expected the cart to contain {$rows} rows, but got {$actual}."
+        );
     }
 }

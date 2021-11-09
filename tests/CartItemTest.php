@@ -17,36 +17,55 @@ class CartItemTest extends TestCase
      */
     protected function getPackageProviders($app)
     {
-        return [ShoppingcartServiceProvider::class];
+        return [
+            ShoppingcartServiceProvider::class
+        ];
+    }
+
+    protected function getCartItem(): CartItem
+    {
+        return new CartItem(
+            1,
+            'Some item',
+            10.00,
+            550,
+            [
+                'size' => 'XL',
+                'color' => 'red'
+            ]
+        );
     }
 
     /** @test */
     public function it_can_be_cast_to_an_array()
     {
-        $cartItem = new CartItem(1, 'Some item', 10.00, 550, ['size' => 'XL', 'color' => 'red']);
+        $cartItem = $this->getCartItem();
         $cartItem->setQuantity(2);
 
-        $this->assertEquals([
-            'id'      => 1,
-            'name'    => 'Some item',
-            'price'   => 10.00,
-            'rowId'   => '07d5da5550494c62daf9993cf954303f',
-            'qty'     => 2,
-            'options' => [
-                'size'  => 'XL',
-                'color' => 'red',
+        $this->assertEquals(
+            [
+                'id'      => 1,
+                'name'    => 'Some item',
+                'price'   => 10.00,
+                'rowId'   => '07d5da5550494c62daf9993cf954303f',
+                'qty'     => 2,
+                'options' => [
+                    'size'  => 'XL',
+                    'color' => 'red',
+                ],
+                'tax'      => 0.0,
+                'subtotal' => 20.00,
+                'discount' => 0.0,
+                'weight'   => 550.0,
             ],
-            'tax'      => 0,
-            'subtotal' => 20.00,
-            'discount' => 0.0,
-            'weight'   => 550.0,
-        ], $cartItem->toArray());
+            $cartItem->toArray()
+        );
     }
 
     /** @test */
     public function it_can_be_cast_to_json()
     {
-        $cartItem = new CartItem(1, 'Some item', 10.00, 550, ['size' => 'XL', 'color' => 'red']);
+        $cartItem = $this->getCartItem();
         $cartItem->setQuantity(2);
 
         $this->assertJson($cartItem->toJson());
@@ -59,7 +78,7 @@ class CartItemTest extends TestCase
     /** @test */
     public function it_formats_price_total_correctly()
     {
-        $cartItem = new CartItem(1, 'Some item', 10.00, 550, ['size' => 'XL', 'color' => 'red']);
+        $cartItem = $this->getCartItem();
         $cartItem->setQuantity(2);
 
         $this->assertSame('20.00', $cartItem->priceTotal());

@@ -9,12 +9,12 @@ interface InstanceIdentifier
      *
      * @return int|string
      */
-    public function getInstanceIdentifier($options = null);
+    public function getInstanceIdentifier($options = null): int|string;
 
     /**
      * Get the unique identifier to load the Cart from.
      *
      * @return int|string
      */
-    public function getInstanceGlobalDiscount($options = null);
+    public function getInstanceGlobalDiscount($options = null): int|string;
 }

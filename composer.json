@@ -1,8 +1,13 @@
 {
-    "name": "bumbummen99/shoppingcart",
-    "description": "Laravel Shoppingcart",
-    "keywords": ["laravel", "shoppingcart"],
+    "name": "zirkeldesign/shoppingcart",
+    "description": "Laravel Shoppingcart - Fork of bumbummen99/shoppingcart",
+    "keywords": [
+        "laravel",
+        "shoppingcart"
+    ],
+    "homepage": "https://github.com/zirkeldesign/shoppingcart",
     "license": "MIT",
+    "type": "library",
     "authors": [
         {
             "name": "Rob Gloudemans",
@@ -16,15 +21,24 @@
         }
     ],
     "require": {
-        "illuminate/support": "5.4.*||5.5.*||5.6.*||5.7.*||5.8.*||^6.0||^7.0||^8.0",
-        "illuminate/session": "5.4.*||5.5.*||5.6.*||5.7.*||5.8.*||^6.0||^7.0||^8.0",
-        "illuminate/events": "5.4.*||5.5.*||5.6.*||5.7.*||5.8.*||^6.0||^7.0||^8.0",
-        "nesbot/carbon": "~1.20||^1.26.3||^2.0"
+        "php": "^7.4|^8.0",
+        "illuminate/support": "^8.0",
+        "illuminate/session": "^8.0",
+        "illuminate/events": "^8.0",
+        "nesbot/carbon": "^2.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "~5.0||~6.0||~7.0||~8.0||~9.0",
+        "brianium/paratest": "^6.2",
+        "calebporzio/sushi": "^2.3",
+        "friendsofphp/php-cs-fixer": "^3.2",
         "mockery/mockery": "^1.0",
-        "orchestra/testbench": "^3.4|^4.0|^5.0|^6.0"
+        "nunomaduro/collision": "^5.3",
+        "nunomaduro/larastan": "^1.0",
+        "orchestra/testbench": "^6.0",
+        "phpunit/phpunit": "^9.0",
+        "spatie/laravel-ray": "^1.23",
+        "spatie/phpunit-snapshot-assertions": "^4.2",
+        "vimeo/psalm": "^4.8"
     },
     "autoload": {
         "psr-4": {
@@ -39,7 +53,13 @@
     "suggest": {
         "gloudemans/notify": "Simple flash notifications for Laravel"
     },
-    "minimum-stability": "stable",
+    "scripts": {
+        "test": "./vendor/bin/testbench package:test --parallel --no-coverage",
+        "test-coverage": "XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-html coverage"
+    },
+    "config": {
+        "sort-packages": true
+    },
     "extra": {
         "laravel": {
             "providers": [
@@ -49,5 +69,7 @@
                 "Cart": "Gloudemans\\Shoppingcart\\Facades\\Cart"
             }
         }
-    }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
 }

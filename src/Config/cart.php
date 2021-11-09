@@ -76,6 +76,16 @@ return [
 
     ],
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Shipping rates
+    |--------------------------------------------------------------------------
+    |
+    | This defaults will be used for the formatted numbers if you don't
+    | set them in the method call.
+    |
+    */
     'shipping' => [
 
         'standard' => [ 232 , 105 ]

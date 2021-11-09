@@ -9,26 +9,26 @@ interface Buyable
      *
      * @return int|string
      */
-    public function getBuyableIdentifier($options = null);
+    public function getBuyableIdentifier($options = null): int|string;
 
     /**
      * Get the description or title of the Buyable item.
      *
      * @return string
      */
-    public function getBuyableDescription($options = null);
+    public function getBuyableDescription($options = null): string;
 
     /**
      * Get the price of the Buyable item.
      *
      * @return float
      */
-    public function getBuyablePrice($options = null);
+    public function getBuyablePrice($options = null): float;
 
     /**
      * Get the weight of the Buyable item.
      *
      * @return float
      */
-    public function getBuyableWeight($options = null);
+    public function getBuyableWeight($options = null): float;
 }

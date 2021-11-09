@@ -2,11 +2,15 @@
 
 namespace Gloudemans\Tests\Shoppingcart\Fixtures;
 
-use Gloudemans\Shoppingcart\Contracts\Buyable;
+use Sushi\Sushi;
 use Illuminate\Database\Eloquent\Model;
+use Gloudemans\Shoppingcart\Contracts\Buyable;
 
 class BuyableProduct extends Model implements Buyable
 {
+    use BuyableProductTrait;
+    use Sushi;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,49 +26,20 @@ class BuyableProduct extends Model implements Buyable
     ];
 
     protected $attributes = [
-        'id'     => 1,
-        'name'   => 'Item name',
-        'price'  => 10.00,
-        'weight' => 0,
+        'id'          => 1,
+        'name'        => 'Item name',
+        'description' => null,
+        'price'       => 10.00,
+        'weight'      => 0,
     ];
 
-    /**
-     * Get the identifier of the Buyable item.
-     *
-     * @return int|string
-     */
-    public function getBuyableIdentifier($options = null)
-    {
-        return $this->id;
-    }
-
-    /**
-     * Get the description or title of the Buyable item.
-     *
-     * @return string
-     */
-    public function getBuyableDescription($options = null)
-    {
-        return $this->name;
-    }
-
-    /**
-     * Get the price of the Buyable item.
-     *
-     * @return float
-     */
-    public function getBuyablePrice($options = null)
-    {
-        return $this->price;
-    }
-
-    /**
-     * Get the price of the Buyable item.
-     *
-     * @return float
-     */
-    public function getBuyableWeight($options = null)
-    {
-        return $this->weight;
-    }
+    protected $rows = [
+        [
+            'id'          => 1,
+            'name'        => 'Item name',
+            'description' => null,
+            'price'       => 10.00,
+            'weight'      => 0,
+        ]
+    ];
 }

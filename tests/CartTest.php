@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Gloudemans\Shoppingcart\Calculation\GrossPrice;
 use Gloudemans\Shoppingcart\Cart;
 use Gloudemans\Shoppingcart\CartItem;
+use Gloudemans\Shoppingcart\FormatsNumbers;
 use Gloudemans\Shoppingcart\ShoppingcartServiceProvider;
 use Gloudemans\Tests\Shoppingcart\Fixtures\BuyableProduct;
 use Gloudemans\Tests\Shoppingcart\Fixtures\BuyableProductTrait;
@@ -21,6 +22,9 @@ use Orchestra\Testbench\TestCase;
 class CartTest extends TestCase
 {
     use CartAssertions;
+    use FormatsNumbers;
+
+    private ?Cart $cart;
 
     /**
      * Set the package service provider.
@@ -48,11 +52,14 @@ class CartTest extends TestCase
         $app['config']->set('session.driver', 'array');
 
         $app['config']->set('database.default', 'testing');
-        $app['config']->set('database.connections.testing', [
-            'driver'   => 'sqlite',
-            'database' => ':memory:',
-            'prefix'   => '',
-        ]);
+
+        $app['config']->set('database.connections.testing',
+            [
+                'driver'   => 'sqlite',
+                'database' => ':memory:',
+                'prefix'   => '',
+            ]
+        );
     }
 
     /**
@@ -82,15 +89,24 @@ class CartTest extends TestCase
     {
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProduct([
-            'id'   => 1,
-            'name' => 'First item',
-        ]));
+        $cart->add(
+            new BuyableProduct(
+                [
+                    'id'   => 1,
+                    'name' => 'First item',
+                ]
+            )
+        );
 
-        $cart->instance('wishlist')->add(new BuyableProduct([
-            'id'   => 2,
-            'name' => 'Second item',
-        ]));
+        $cart->instance('wishlist')
+            ->add(
+                new BuyableProduct(
+                    [
+                        'id'   => 2,
+                        'name' => 'Second item',
+                    ]
+                )
+            );
 
         $this->assertItemsInCart(1, $cart->instance(Cart::DEFAULT_INSTANCE));
         $this->assertItemsInCart(1, $cart->instance('wishlist'));
@@ -132,11 +148,12 @@ class CartTest extends TestCase
 
         $cart = $this->getCart();
 
-        $cart->add([new BuyableProduct([
-            'id' => 1,
-        ]), new BuyableProduct([
-            'id' => 2,
-        ])]);
+        $cart->add(
+            [
+                new BuyableProduct(['id' => 1]),
+                new BuyableProduct(['id' => 2])
+            ]
+        );
 
         $this->assertEquals(2, $cart->count());
 
@@ -342,21 +359,25 @@ class CartTest extends TestCase
     /** @test */
     public function it_can_update_an_existing_item_in_the_cart_from_a_buyable()
     {
+
         Event::fake();
 
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProductTrait([
+        $cart->add(new BuyableProduct([
             'description' => 'Description',
         ]));
 
-        $cart->update('027c91341fd5cf4d2579b49c4b6a90da', new BuyableProductTrait([
+        $cart->update('027c91341fd5cf4d2579b49c4b6a90da', new BuyableProduct([
             'name'        => '',
             'description' => 'Different description',
         ]));
 
         $this->assertItemsInCart(1, $cart);
-        $this->assertEquals('Different description', $cart->get('027c91341fd5cf4d2579b49c4b6a90da')->name);
+        $this->assertEquals(
+            'Different description',
+            $cart->get('027c91341fd5cf4d2579b49c4b6a90da')->name
+        );
 
         Event::assertDispatched('cart.updated');
     }
@@ -368,7 +389,7 @@ class CartTest extends TestCase
 
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProductTrait([
+        $cart->add(new BuyableProduct([
             'description' => 'Description',
         ]));
 
@@ -549,7 +570,7 @@ class CartTest extends TestCase
                 'name'     => 'Item name',
                 'qty'      => 1,
                 'price'    => 10.00,
-                'tax'      => 2.10,
+                'tax'      => $this->getTaxFrom(10),
                 'subtotal' => 10.0,
                 'options'  => [],
                 'discount' => 0.0,
@@ -561,7 +582,7 @@ class CartTest extends TestCase
                 'name'     => 'Item name',
                 'qty'      => 1,
                 'price'    => 10.00,
-                'tax'      => 2.10,
+                'tax'      => $this->getTaxFrom(10),
                 'subtotal' => 10.0,
                 'options'  => [],
                 'discount' => 0.0,
@@ -788,7 +809,10 @@ class CartTest extends TestCase
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
-        $this->assertEquals(2.10, $cartItem->tax);
+        $this->assertEquals(
+            (float) $this->getTaxFrom($cartItem->price),
+            $cartItem->tax
+        );
     }
 
     /** @test */
@@ -804,7 +828,10 @@ class CartTest extends TestCase
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
-        $this->assertEquals(1.90, $cartItem->tax);
+        $this->assertEquals(
+            $this->getTaxFrom($cartItem->price, 19),
+            $cartItem->tax
+        );
     }
 
     /** @test */
@@ -819,7 +846,10 @@ class CartTest extends TestCase
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
-        $this->assertEquals('2.100,00', $cartItem->tax(2, ',', '.'));
+        $this->assertEquals(
+            $this->getTaxFrom($cartItem->price, null, 2, ',', '.'),
+            $cartItem->tax(2, ',', '.')
+        );
     }
 
     /** @test */
@@ -1220,7 +1250,10 @@ class CartTest extends TestCase
 
         $cartItem = $cart->get('027c91341fd5cf4d2579b49c4b6a90da');
 
-        $this->assertEquals('24.21', $cartItem->total(2));
+        $this->assertEquals(
+            $this->numberFormat((2 * 10.004) * (1 + ($cartItem->taxRate / 100))),
+            $cartItem->total(2)
+        );
     }
 
     /** @test */
@@ -1389,7 +1422,7 @@ class CartTest extends TestCase
     {
         $cart = $this->getCartDiscount(50);
 
-        $cart->add(new BuyableProductTrait([
+        $cart->add(new BuyableProduct([
             'name' => 'First item',
         ]), 2);
 
@@ -1414,7 +1447,7 @@ class CartTest extends TestCase
         // https://github.com/Crinsane/LaravelShoppingcart/issues/544
         $cart = $this->getCart();
 
-        $cart->add(new BuyableProductTrait([
+        $cart->add(new BuyableProduct([
             'name' => 'First item',
         ]), 0.5);
 
@@ -1597,12 +1630,16 @@ class CartTest extends TestCase
      *
      * @return \Gloudemans\Shoppingcart\Cart
      */
-    private function getCart()
+    private function getCart(): Cart
     {
         $session = $this->app->make('session');
         $events = $this->app->make('events');
 
-        return new Cart($session, $events);
+        $this->cart = new Cart($session, $events);
+
+        $this->cart->setGlobalTax(21);
+
+        return $this->cart;
     }
 
     /**
@@ -1620,18 +1657,28 @@ class CartTest extends TestCase
         return $cart;
     }
 
+    private function getTaxFrom($value, $tax = null, $decimals = null, $decimalPoint = null, $thousandSeparator = null)
+    {
+        return $this->numberFormat(
+            $value * (($tax ?? $this->cart->getTax()) / 100),
+            $decimals,
+            $decimalPoint,
+            $thousandSeparator
+        );
+    }
+
     /**
      * Set the config number format.
      *
      * @param int    $decimals
      * @param string $decimalPoint
-     * @param string $thousandSeperator
+     * @param string $thousandSeparator
      */
-    private function setConfigFormat($decimals, $decimalPoint, $thousandSeperator)
+    private function setConfigFormat($decimals, $decimalPoint, $thousandSeparator)
     {
         $this->app['config']->set('cart.format.decimals', $decimals);
         $this->app['config']->set('cart.format.decimal_point', $decimalPoint);
-        $this->app['config']->set('cart.format.thousand_separator', $thousandSeperator);
+        $this->app['config']->set('cart.format.thousand_separator', $thousandSeparator);
     }
 
     /** @test */
