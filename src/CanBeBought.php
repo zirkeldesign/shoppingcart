@@ -19,7 +19,7 @@ trait CanBeBought
      *
      * @return string
      */
-    public function getBuyableDescription($options = null)
+    public function getBuyableDescription($options = null): string
     {
         if ($name = $this->getAttribute('name')) {
             return $name;
