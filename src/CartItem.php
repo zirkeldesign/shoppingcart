@@ -116,15 +116,13 @@ class CartItem implements Arrayable, Jsonable
             throw new \InvalidArgumentException('Please supply a valid name.');
         }
 
-        if (
-            strlen($price) < 0
+        if (strlen($price) < 0
             || !is_numeric($price)
         ) {
             throw new \InvalidArgumentException('Please supply a valid price.');
         }
 
-        if (
-            strlen($weight) < 0
+        if (strlen($weight) < 0
             || !is_numeric($weight)
         ) {
             throw new \InvalidArgumentException('Please supply a valid weight.');
@@ -356,8 +354,7 @@ class CartItem implements Arrayable, Jsonable
      */
     public function setQuantity($qty)
     {
-        if (
-            empty($qty)
+        if (empty($qty)
             || !is_numeric($qty)
         ) {
             throw new \InvalidArgumentException('Please supply a valid quantity.');
@@ -459,33 +456,33 @@ class CartItem implements Arrayable, Jsonable
         $decimals = config('cart.format.decimals', 2);
 
         switch ($attribute) {
-            case 'model':
-                if (isset($this->associatedModel)) {
-                    return with(new $this->associatedModel())
-                        ->find($this->id);
+        case 'model':
+            if (isset($this->associatedModel)) {
+                return with(new $this->associatedModel())
+                    ->find($this->id);
+            }
+            // no break
+        case 'modelFQCN':
+            if (isset($this->associatedModel)) {
+                return $this->associatedModel;
+            }
+            // no break
+        case 'weightTotal':
+            return round($this->weight * $this->qty, $decimals);
+        case 'shipping':
+            return $this->price * 0.05;
+        case 'shippingInt':
+            return $this->price * 0.1;
+        default:
+            if (isset($this->associatedModel)) {
+                $model = with(new $this->associatedModel())
+                    ->find($this->id);
+                if ($model
+                    && \property_exists($model, $attribute)
+                ) {
+                    return $model->{$attribute};
                 }
-                // no break
-            case 'modelFQCN':
-                if (isset($this->associatedModel)) {
-                    return $this->associatedModel;
-                }
-                // no break
-            case 'weightTotal':
-                return round($this->weight * $this->qty, $decimals);
-            case 'shipping':
-                return $this->price * 0.05;
-            case 'shippingInt':
-                return $this->price * 0.1;
-            default:
-                if (isset($this->associatedModel)) {
-                    $model = with(new $this->associatedModel())
-                        ->find($this->id);
-                    if ($model
-                        && \property_exists($model, $attribute)
-                    ) {
-                        return $model->{$attribute};
-                    }
-                };
+            };
         }
 
         $class = new ReflectionClass(config('cart.calculator', DefaultCalculator::class));

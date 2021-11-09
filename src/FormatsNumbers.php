@@ -7,7 +7,7 @@ trait FormatsNumbers
     /**
      * Get the formatted number.
      *
-     * @param float  $value
+     * @param float       $value
      * @param null|int    $decimals
      * @param null|string $decimalPoint
      * @param null|string $thousandSeparator

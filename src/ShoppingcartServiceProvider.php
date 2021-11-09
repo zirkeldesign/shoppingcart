@@ -20,9 +20,11 @@ class ShoppingcartServiceProvider extends ServiceProvider
         $config = __DIR__ . '/Config/cart.php';
         $this->mergeConfigFrom($config, 'cart');
 
-        $this->publishes([
+        $this->publishes(
+            [
             __DIR__ . '/Config/cart.php' => config_path('cart.php')
-        ], 'config');
+            ], 'config'
+        );
 
         $this->app['events']->listen(
             Logout::class,
