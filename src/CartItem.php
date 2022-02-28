@@ -72,7 +72,7 @@ class CartItem implements Arrayable, Jsonable
     /**
      * The options for this cart item.
      *
-     * @var CartItemOptions
+     * @var CartItemOptions|array
      */
     public $options;
 
@@ -96,6 +96,13 @@ class CartItem implements Arrayable, Jsonable
      * @var float
      */
     private $discountRate = 0;
+
+    /**
+     * The cart instance of the cart item.
+     *
+     * @var null|string
+     */
+    public $instance = null;
 
     /**
      * CartItem constructor.
@@ -441,6 +448,20 @@ class CartItem implements Arrayable, Jsonable
     }
 
     /**
+     * Set cart instance.
+     *
+     * @param null|string $instance
+     *
+     * @return \Gloudemans\Shoppingcart\CartItem
+     */
+    public function setInstance($instance)
+    {
+        $this->instance = $instance;
+
+        return $this;
+    }
+
+    /**
      * Get an attribute from the cart item or get the associated model.
      *
      * @param string $attribute
@@ -577,7 +598,9 @@ class CartItem implements Arrayable, Jsonable
             'qty'      => $this->qty,
             'price'    => $this->price,
             'weight'   => $this->weight,
-            'options'  => $this->options->toArray(),
+            'options'  => is_object($this->options)
+                ? $this->options->toArray()
+                : $this->options,
             'discount' => $this->discount,
             'tax'      => $this->tax,
             'subtotal' => $this->subtotal,
