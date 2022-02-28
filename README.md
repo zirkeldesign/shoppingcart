@@ -30,7 +30,7 @@ You definitely should publish the `config` file and take a look at it.
 php artisan vendor:publish --provider="Gloudemans\Shoppingcart\ShoppingcartServiceProvider" --tag="config"
 ```
 
-This will give you a `cart.php` config file in which you can make changes to the packages behaivor.
+This will give you a `cart.php` config file in which you can make changes to the packages behavior.
 
 ## Table of Contents
 
